@@ -1,6 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import authRoute from "./routes/auth.js";
+import userRoute from "./routes/user.js";
+import hotelRoute from "./routes/hotel.js";
+import roomRoute from "./routes/room.js";
 
 const app = express();
 dotenv.config();
@@ -20,6 +24,13 @@ mongoose.connection.on("disconnected", () => {
 mongoose.connection.on("connected", () => {
 	console.log("MongoDB connected on - ", new Date());
 });
+app.use(express.json());
+
+
+app.use("/auth", authRoute);
+app.use("/user", userRoute);
+app.use("/hotel", hotelRoute);
+app.use("/room", roomRoute);
 app.listen("4040", () => {
 	connect();
 	console.log("Server running successfully on the port 4040.");
