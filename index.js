@@ -31,6 +31,18 @@ app.use("/auth", authRoute);
 app.use("/user", userRoute);
 app.use("/hotel", hotelRoute);
 app.use("/room", roomRoute);
+
+//Set error handlers
+app.use((err, req, res, next) => {
+	const errorStatus = err.status || 500;
+	const errorMessage = err.message || "Something went wrong!";
+	return res.status(errorStatus).json({
+		success: false,
+		status: errorStatus,
+		message: errorMessage,
+		stack: err.stack,
+	});
+});
 app.listen("4040", () => {
 	connect();
 	console.log("Server running successfully on the port 4040.");
