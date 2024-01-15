@@ -6,6 +6,7 @@ import userRoute from "./routes/user.js";
 import hotelRoute from "./routes/hotel.js";
 import roomRoute from "./routes/room.js";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 const app = express();
 dotenv.config();
@@ -25,6 +26,8 @@ mongoose.connection.on("disconnected", () => {
 mongoose.connection.on("connected", () => {
 	console.log("MongoDB connected on - ", new Date());
 });
+
+app.use(cors);
 app.use(express.json());
 app.use(cookieParser());
 
