@@ -1,6 +1,6 @@
 import express from "express";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 import authRoute from "./routes/auth.js";
 import userRoute from "./routes/user.js";
 import hotelRoute from "./routes/hotel.js";
@@ -14,6 +14,7 @@ dotenv.config();
 const connect = async () => {
 	try {
 		await mongoose.connect(process.env.MONGO);
+		console.log("Connected to mongoDB.");
 	} catch (error) {
 		console.log("Database connection error.");
 		throw error;
@@ -21,20 +22,17 @@ const connect = async () => {
 };
 
 mongoose.connection.on("disconnected", () => {
-	console.log("MongoDB Disconnected on - ", new Date());
-});
-mongoose.connection.on("connected", () => {
-	console.log("MongoDB connected on - ", new Date());
+	console.log("MongoDB Disconnected.");
 });
 
-app.use(cors);
-app.use(express.json());
+app.use(cors());
 app.use(cookieParser());
+app.use(express.json());
 
-app.use("/auth", authRoute);
-app.use("/user", userRoute);
-app.use("/hotel", hotelRoute);
-app.use("/room", roomRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/users", userRoute);
+app.use("/api/hotels", hotelRoute);
+app.use("/api/rooms", roomRoute);
 
 //Set error handlers
 app.use((err, req, res, next) => {
@@ -47,7 +45,8 @@ app.use((err, req, res, next) => {
 		stack: err.stack,
 	});
 });
-app.listen("4040", () => {
+
+app.listen(4040, () => {
 	connect();
 	console.log("Server running successfully on the port 4040.");
 });
