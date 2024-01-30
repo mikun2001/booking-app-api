@@ -1,4 +1,5 @@
 import Hotel from "../models/Hotel.js";
+import Room from "../models/Room.js";
 import { createError } from "../utils/error.js";
 export const createHotel = async (req, res, next) => {
 	const newHotel = new Hotel(req.body);
@@ -39,12 +40,23 @@ export const getHotel = async (req, res, next) => {
 	}
 };
 export const getHotels = async (req, res, next) => {
-	const { min, max, limit, ...others } = req.query;
+	const { city, min, max, limit, ...others } = req.query;
+	let findQ = {
+		...others,
+		cheapestPrice: {
+			$gte: parseInt(min) | 1,
+			$lte: parseInt(max) || 999,
+		},
+	};
+	if (city) {
+		findQ = {
+			...findQ,
+			city: { $regex: `${city}`, $options: "i" },
+		}
+	}
 	try {
-		const hotels = await Hotel.find({
-			...others,
-			cheapestPrice: { $gte: parseInt(min) | 1, $lte: parseInt(max) || 999 },
-		}).limit(parseInt(req.query.limit ? req.query.limit : "10"));
+		console.log(findQ);
+		const hotels = await Hotel.find(findQ).limit(parseInt(req.query.limit ? req.query.limit : "10"));
 		res.status(200).json(hotels);
 	} catch (err) {
 		next(err);
