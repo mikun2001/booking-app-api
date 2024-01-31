@@ -52,11 +52,13 @@ export const getHotels = async (req, res, next) => {
 		findQ = {
 			...findQ,
 			city: { $regex: `${city}`, $options: "i" },
-		}
+		};
 	}
 	try {
-		console.log(findQ);
-		const hotels = await Hotel.find(findQ).limit(parseInt(req.query.limit ? req.query.limit : "10"));
+		// console.log(findQ);
+		const hotels = await Hotel.find(findQ).limit(
+			parseInt(req.query.limit ? req.query.limit : "10")
+		);
 		res.status(200).json(hotels);
 	} catch (err) {
 		next(err);
@@ -67,13 +69,33 @@ export const countByCity = async (req, res, next) => {
 	if (req.query.cities) {
 		try {
 			const cities = req.query.cities.split(",");
-			const list = await Promise.all(
-				cities.map((city) => {
-					return Hotel.countDocuments({ city: city });
-				})
-			);
+			const list = await Hotel.aggregate([
+				{ $match: { city: { $in: cities } } },
+				{
+					$group: {
+						_id: "$city",
+						total: { $sum: 1 },
+					},
+				},
+				{ $sort: { total: -1 } },
+			]);
+			// cities.map((city) => {
+			// 	return Hotel.aggregate([
+			// 		{ $match: { city: city } },
+			// 		{
+			// 			$group: {
+			// 				_id: "$city",
+			// 				total: { $sum: 1 },
+			// 			},
+			// 		},
+			// 		{ $sort: { total: -1 } },
+			// 	]);
+			// 	// return Hotel.countDocuments({ city: city });
+			// })
+
 			res.status(200).json(list);
 		} catch (err) {
+			console.log(err);
 			next(err);
 		}
 	}
@@ -91,10 +113,10 @@ export const countByType = async (req, res, next) => {
 
 		res.status(200).json([
 			{ type: "hotel", count: hotelCount },
-			{ type: "apartments", count: apartmentCount },
-			{ type: "resorts", count: resortCount },
-			{ type: "villas", count: villaCount },
-			{ type: "cabins", count: cabinCount },
+			{ type: "apartment", count: apartmentCount },
+			{ type: "resort", count: resortCount },
+			{ type: "villa", count: villaCount },
+			{ type: "cabin", count: cabinCount },
 		]);
 	} catch (err) {
 		next(err);
